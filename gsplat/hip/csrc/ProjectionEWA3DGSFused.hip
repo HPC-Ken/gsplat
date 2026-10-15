@@ -288,7 +288,7 @@ void launch_projection_ewa_3dgs_fused_fwd_kernel(
                 conics.data_ptr<scalar_t>(),
                 compensations.has_value() ? compensations.value().data_ptr<scalar_t>() : nullptr
             );
-            C10_HIP_KERNEL_LAUNCH_CHECK();
+            C10_HIP_CHECK(hipGetLastError());
         }
     );
 }
@@ -365,7 +365,7 @@ void launch_projection_ewa_3dgs_fused_fwd_kernels(
                         conics.data_ptr<scalar_t>(),
                         compensations.has_value() ? compensations.value().data_ptr<scalar_t>() : nullptr
                     );
-                    C10_HIP_KERNEL_LAUNCH_CHECK();
+                    C10_HIP_CHECK(hipGetLastError());
                 }
             );
         }
@@ -717,7 +717,7 @@ void launch_projection_ewa_3dgs_fused_bwd_kernel(
                 covars.has_value() ? nullptr : v_scales.data_ptr<scalar_t>(),
                 viewmats_requires_grad ? v_viewmats.data_ptr<scalar_t>() : nullptr
             );
-            C10_HIP_KERNEL_LAUNCH_CHECK();
+            C10_HIP_CHECK(hipGetLastError());
         }
     );
 }
@@ -809,7 +809,7 @@ void launch_projection_ewa_3dgs_fused_bwd_kernels(
                         covars.has_value() ? nullptr : v_scales.data_ptr<scalar_t>(),
                         viewmats_requires_grad ? v_viewmats.data_ptr<scalar_t>() : nullptr
                     );
-                    C10_HIP_KERNEL_LAUNCH_CHECK();
+                    C10_HIP_CHECK(hipGetLastError());
                 }
             );
         }

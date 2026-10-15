@@ -42,7 +42,7 @@
 #include "shutter_type.h"
 
 #include <ATen/hip/HIPContext.h>
-#include <c10/hip/HIPGuard.h>
+#include <ATen/hip/impl/HIPGuardImplMasqueradingAsCUDA.h>
 
 #include <cmath>
 #include <numbers>
@@ -316,7 +316,7 @@ at::Tensor generate_image_points(int64_t width, int64_t height, c10::Device devi
 {
     TORCH_CHECK(width >= 0 && height >= 0, "resolution dimensions must be non-negative");
     TORCH_CHECK(device.is_cuda(), "generate_image_points requires a CUDA device");
-    auto guard        = c10::hip::HIPGuard(device);
+    auto guard        = c10::hip::HIPGuardMasqueradingAsCUDA(device);
     auto options      = at::TensorOptions().device(device).dtype(at::kFloat);
     auto image_points = at::empty({height, width, 2}, options);
     generate_image_points_launch(
@@ -341,7 +341,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> camera_rays_to_image_points_openc
     check_matrix(rays, 3, "camera_rays");
     check_cuda_float_contiguous(rays, "camera_rays");
     check_projection_for_device(projection, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto image_points       = at::empty({rays.size(0), 2}, rays.options());
     auto valid_flags        = at::empty({rays.size(0)}, rays.options().dtype(at::kBool));
@@ -375,7 +375,7 @@ std::tuple<at::Tensor, at::Tensor> image_points_to_camera_rays_opencv_pinhole_no
     check_matrix(pts, 2, "image_points");
     check_cuda_float_contiguous(pts, "image_points");
     check_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto camera_rays        = at::empty({pts.size(0), 3}, pts.options());
     const bool save_scratch = pts.requires_grad() || needs_projection_grad(projection);
@@ -426,7 +426,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(start_rotation.device() == pts.device(), "start_rotation device must match world_points");
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points            = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags             = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -508,7 +508,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(start_rotation.device() == pts.device(), "start_rotation device must match world_points");
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points       = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags        = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -578,7 +578,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
         trans.device() == pts.device() && rots.device() == pts.device(), "pose tensors device must match image_points"
     );
     check_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -644,7 +644,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     TORCH_CHECK(start_rotation.device() == pts.device(), "start_rotation device must match image_points");
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match image_points");
     check_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays         = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps         = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -707,7 +707,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
         scratch_contig.numel() >= rays.size(0) * 6, "scratch too small for camera_rays_to_image_points backward"
     );
     check_projection_for_device(projection, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto grad_rays       = need_camera_ray_grad ? at::empty_like(rays) : empty_scratch(rays.options());
     auto intrinsic_grads = make_intrinsic_grad_outputs(
@@ -771,7 +771,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
         scratch_contig.numel() >= pts.size(0) * 5, "scratch too small for image_points_to_camera_rays backward"
     );
     check_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts        = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto intrinsic_grads = make_intrinsic_grad_outputs(
@@ -856,7 +856,7 @@ std::tuple<
         scratch_contig.numel() >= pts.size(0) * 9, "scratch too small for project_world_points_mean_pose backward"
     );
     check_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts        = need_world_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t    = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -965,7 +965,7 @@ std::tuple<
         scratch_contig.numel() >= pts.size(0) * 10, "scratch too small for project_world_points_shutter_pose backward"
     );
     check_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts        = need_world_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t    = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -1056,7 +1056,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
         "scratch too small for image_points_to_world_rays_static_pose backward"
     );
     check_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts        = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_t          = need_translation_grad ? at::zeros_like(translation) : empty_scratch(translation.options());
@@ -1151,7 +1151,7 @@ std::tuple<
         "scratch too small for image_points_to_world_rays_shutter_pose backward"
     );
     check_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts        = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t    = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -1212,7 +1212,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> camera_rays_to_image_points_openc
     check_cuda_float_contiguous(rays, "camera_rays");
     check_projection_for_device(projection, rays.device());
     check_bivariate_windshield_for_device(external_distortion, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto image_points       = at::empty({rays.size(0), 2}, rays.options());
     auto valid_flags        = at::empty({rays.size(0)}, rays.options().dtype(at::kBool));
@@ -1244,7 +1244,7 @@ std::tuple<at::Tensor, at::Tensor> image_points_to_camera_rays_opencv_pinhole_bi
     check_cuda_float_contiguous(pts, "image_points");
     check_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto camera_rays        = at::empty({pts.size(0), 3}, pts.options());
     const bool save_scratch = pts.requires_grad()
@@ -1293,7 +1293,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points            = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags             = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -1372,7 +1372,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points       = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags        = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -1439,7 +1439,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     );
     check_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays         = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps         = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -1504,7 +1504,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match image_points");
     check_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays         = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps         = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -1569,7 +1569,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     );
     check_projection_for_device(projection, rays.device());
     check_bivariate_windshield_for_device(external_distortion, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto grad_rays       = need_camera_ray_grad ? at::empty_like(rays) : empty_scratch(rays.options());
     auto intrinsic_grads = make_intrinsic_grad_outputs(
@@ -1637,7 +1637,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     );
     check_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts        = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto intrinsic_grads = make_intrinsic_grad_outputs(
@@ -1727,7 +1727,7 @@ std::tuple<
     );
     check_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts        = need_world_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t    = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -1842,7 +1842,7 @@ std::tuple<
     );
     check_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts        = need_world_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t    = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -1937,7 +1937,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     );
     check_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts        = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_t          = need_translation_grad ? at::zeros_like(translation) : empty_scratch(translation.options());
@@ -2037,7 +2037,7 @@ std::tuple<
     );
     check_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts        = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t    = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -2470,7 +2470,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> camera_rays_to_image_points_fthet
     check_matrix(rays, 3, "camera_rays");
     check_cuda_float_contiguous(rays, "camera_rays");
     check_ftheta_projection_for_device(projection, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto image_points       = at::empty({rays.size(0), 2}, rays.options());
     auto valid_flags        = at::empty({rays.size(0)}, rays.options().dtype(at::kBool));
@@ -2499,7 +2499,7 @@ std::tuple<at::Tensor, at::Tensor> image_points_to_camera_rays_ftheta_no_externa
     check_matrix(pts, 2, "image_points");
     check_cuda_float_contiguous(pts, "image_points");
     check_ftheta_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto camera_rays        = at::empty({pts.size(0), 3}, pts.options());
     const bool save_scratch = pts.requires_grad() || needs_ftheta_projection_grad(projection);
@@ -2526,7 +2526,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> camera_rays_to_image_points_fthet
     check_cuda_float_contiguous(rays, "camera_rays");
     check_ftheta_projection_for_device(projection, rays.device());
     check_bivariate_windshield_for_device(external_distortion, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto image_points       = at::empty({rays.size(0), 2}, rays.options());
     auto valid_flags        = at::empty({rays.size(0)}, rays.options().dtype(at::kBool));
@@ -2558,7 +2558,7 @@ std::tuple<at::Tensor, at::Tensor> image_points_to_camera_rays_ftheta_bivariate_
     check_cuda_float_contiguous(pts, "image_points");
     check_ftheta_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto camera_rays        = at::empty({pts.size(0), 3}, pts.options());
     const bool save_scratch = pts.requires_grad()
@@ -2607,7 +2607,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(start_rotation.device() == pts.device(), "start_rotation device must match world_points");
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_ftheta_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points            = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags             = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -2674,7 +2674,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_ftheta_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points            = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags             = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -2738,7 +2738,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
         trans.device() == pts.device() && rots.device() == pts.device(), "pose tensors device must match image_points"
     );
     check_ftheta_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays         = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps         = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -2791,7 +2791,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     );
     check_ftheta_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays         = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps         = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -2861,7 +2861,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(start_rotation.device() == pts.device(), "start_rotation device must match world_points");
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_ftheta_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points       = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags        = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -2941,7 +2941,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_ftheta_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points       = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags        = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -3018,7 +3018,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     TORCH_CHECK(start_rotation.device() == pts.device(), "start_rotation device must match image_points");
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match image_points");
     check_ftheta_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays         = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps         = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -3087,7 +3087,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match image_points");
     check_ftheta_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays         = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps         = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -3162,7 +3162,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
         "scratch too small for camera_rays_to_image_points_ftheta_no_external backward"
     );
     check_ftheta_projection_for_device(projection, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto grad_rays = need_camera_ray_grad ? at::empty_like(rays) : empty_scratch(rays.options());
     auto intr      = make_ftheta_intrinsic_grad_outputs(
@@ -3214,7 +3214,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
         "scratch too small for image_points_to_camera_rays_ftheta_no_external backward"
     );
     check_ftheta_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto intr     = make_ftheta_intrinsic_grad_outputs(
@@ -3267,7 +3267,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     );
     check_ftheta_projection_for_device(projection, rays.device());
     check_bivariate_windshield_for_device(external_distortion, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto grad_rays = need_camera_ray_grad ? at::empty_like(rays) : empty_scratch(rays.options());
     auto intr      = make_ftheta_intrinsic_grad_outputs(
@@ -3323,7 +3323,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     );
     check_ftheta_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto intr     = make_ftheta_intrinsic_grad_outputs(
@@ -3399,7 +3399,7 @@ std::tuple<
         "scratch too small for project_world_points_mean_pose_ftheta_no_external backward"
     );
     check_ftheta_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts     = need_world_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -3495,7 +3495,7 @@ std::tuple<
     );
     check_ftheta_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts     = need_world_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -3580,7 +3580,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
         "scratch too small for image_points_to_world_rays_static_pose_ftheta_no_external backward"
     );
     check_ftheta_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_t   = need_translation_grad ? at::zeros_like(translation) : empty_scratch(translation.options());
@@ -3647,7 +3647,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     );
     check_ftheta_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_t   = need_translation_grad ? at::zeros_like(translation) : empty_scratch(translation.options());
@@ -3741,7 +3741,7 @@ std::tuple<
         "scratch too small for project_world_points_shutter_pose_ftheta_no_external backward"
     );
     check_ftheta_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts     = need_world_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -3851,7 +3851,7 @@ std::tuple<
     );
     check_ftheta_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts     = need_world_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -3954,7 +3954,7 @@ std::tuple<
         "scratch too small for image_points_to_world_rays_shutter_pose_ftheta_no_external backward"
     );
     check_ftheta_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts     = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -4052,7 +4052,7 @@ std::tuple<
     );
     check_ftheta_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts     = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -4118,7 +4118,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> camera_rays_to_image_points_openc
     check_matrix(rays, 3, "camera_rays");
     check_cuda_float_contiguous(rays, "camera_rays");
     check_opencv_fisheye_projection_for_device(projection, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto image_points       = at::empty({rays.size(0), 2}, rays.options());
     auto valid_flags        = at::empty({rays.size(0)}, rays.options().dtype(at::kBool));
@@ -4165,7 +4165,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     check_tensor_device(grad, rays.device(), "grad_image_points");
     check_tensor_device(scratch, rays.device(), "scratch");
     check_opencv_fisheye_projection_for_device(projection, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto grad_rays = need_camera_ray_grad ? at::empty_like(rays) : empty_scratch(rays.options());
     auto intr      = make_opencv_fisheye_intrinsic_grad_outputs(
@@ -4197,7 +4197,7 @@ std::tuple<at::Tensor, at::Tensor> image_points_to_camera_rays_opencv_fisheye_no
     check_matrix(pts, 2, "image_points");
     check_cuda_float_contiguous(pts, "image_points");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto camera_rays        = at::empty({pts.size(0), 3}, pts.options());
     const bool save_scratch = pts.requires_grad() || needs_opencv_fisheye_projection_grad(projection);
@@ -4242,7 +4242,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     check_tensor_device(grad, pts.device(), "grad_camera_rays");
     check_tensor_device(scratch, pts.device(), "scratch");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto intr     = make_opencv_fisheye_intrinsic_grad_outputs(
@@ -4293,7 +4293,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(start_rotation.device() == pts.device(), "start_rotation device must match world_points");
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points            = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags             = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -4371,7 +4371,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     check_tensor_device(grad, pts.device(), "grad_image_points");
     check_tensor_device(scratch, pts.device(), "scratch");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts     = need_world_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -4436,7 +4436,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
         trans.device() == pts.device() && rots.device() == pts.device(), "pose tensors device must match image_points"
     );
     check_opencv_fisheye_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays         = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps         = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -4506,7 +4506,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
         "scratch too small for image_points_to_world_rays_static_pose_opencv_fisheye_no_external backward"
     );
     check_opencv_fisheye_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts   = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_trans = need_translation_grad ? at::zeros_like(trans) : empty_scratch(pts.options());
@@ -4550,7 +4550,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> camera_rays_to_image_points_openc
     check_cuda_float_contiguous(rays, "camera_rays");
     check_opencv_fisheye_projection_for_device(projection, rays.device());
     check_bivariate_windshield_for_device(external_distortion, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto image_points       = at::empty({rays.size(0), 2}, rays.options());
     auto valid_flags        = at::empty({rays.size(0)}, rays.options().dtype(at::kBool));
@@ -4601,7 +4601,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     check_tensor_device(scratch, rays.device(), "scratch");
     check_opencv_fisheye_projection_for_device(projection, rays.device());
     check_bivariate_windshield_for_device(external_distortion, rays.device());
-    auto guard = c10::hip::HIPGuard(rays.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(rays.device());
 
     auto grad_rays = need_camera_ray_grad ? at::empty_like(rays) : empty_scratch(rays.options());
     auto intr      = make_opencv_fisheye_intrinsic_grad_outputs(
@@ -4636,7 +4636,7 @@ std::tuple<at::Tensor, at::Tensor> image_points_to_camera_rays_opencv_fisheye_bi
     check_cuda_float_contiguous(pts, "image_points");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto camera_rays        = at::empty({pts.size(0), 3}, pts.options());
     const bool save_scratch = pts.requires_grad()
@@ -4685,7 +4685,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     check_tensor_device(scratch, pts.device(), "scratch");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto intr     = make_opencv_fisheye_intrinsic_grad_outputs(
@@ -4739,7 +4739,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points            = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags             = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -4820,7 +4820,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     check_tensor_device(scratch, pts.device(), "scratch");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts     = need_world_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -4889,7 +4889,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     );
     check_opencv_fisheye_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays         = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps         = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -4962,7 +4962,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     check_tensor_device(scratch, pts.device(), "scratch");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts   = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_trans = need_translation_grad ? at::zeros_like(trans) : empty_scratch(pts.options());
@@ -5045,7 +5045,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(start_rotation.device() == pts.device(), "start_rotation device must match world_points");
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points       = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags        = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -5120,7 +5120,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     check_tensor_device(end_rotation, grad.device(), "end_rotation");
     check_tensor_device(scratch, grad.device(), "scratch");
     check_opencv_fisheye_projection_for_device(projection, grad.device());
-    auto guard = c10::hip::HIPGuard(grad.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(grad.device());
 
     auto grad_pts
         = need_world_point_grad ? at::empty({grad.size(0), 3}, grad.options()) : empty_scratch(grad.options());
@@ -5200,7 +5200,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match world_points");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto image_points       = at::empty({pts.size(0), 2}, pts.options());
     auto valid_flags        = at::empty({pts.size(0)}, pts.options().dtype(at::kBool));
@@ -5278,7 +5278,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     check_tensor_device(scratch, grad.device(), "scratch");
     check_opencv_fisheye_projection_for_device(projection, grad.device());
     check_bivariate_windshield_for_device(external_distortion, grad.device());
-    auto guard = c10::hip::HIPGuard(grad.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(grad.device());
 
     auto grad_pts
         = need_world_point_grad ? at::empty({grad.size(0), 3}, grad.options()) : empty_scratch(grad.options());
@@ -5357,7 +5357,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     TORCH_CHECK(start_rotation.device() == pts.device(), "start_rotation device must match image_points");
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match image_points");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays         = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps         = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -5432,7 +5432,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     check_tensor_device(grad, pts.device(), "grad_world_rays");
     check_tensor_device(scratch, pts.device(), "scratch");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts     = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());
@@ -5507,7 +5507,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor>
     TORCH_CHECK(end_rotation.device() == pts.device(), "end_rotation device must match image_points");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto world_rays         = at::empty({pts.size(0), 6}, pts.options());
     auto timestamps         = at::empty({pts.size(0)}, pts.options().dtype(at::kLong));
@@ -5585,7 +5585,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     check_tensor_device(scratch, pts.device(), "scratch");
     check_opencv_fisheye_projection_for_device(projection, pts.device());
     check_bivariate_windshield_for_device(external_distortion, pts.device());
-    auto guard = c10::hip::HIPGuard(pts.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(pts.device());
 
     auto grad_pts     = need_image_point_grad ? at::empty_like(pts) : empty_scratch(pts.options());
     auto grad_start_t = need_start_translation_grad ? at::zeros({3}, pts.options()) : empty_scratch(pts.options());

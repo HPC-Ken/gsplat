@@ -12,7 +12,7 @@
 #if GSPLAT_BUILD_3DGUT
 
 #    include <ATen/hip/HIPContext.h>
-#    include <c10/hip/HIPGuard.h>
+#    include <ATen/hip/impl/HIPGuardImplMasqueradingAsCUDA.h>
 #    include <torch/extension.h>
 
 #    include "PrimingChainEncoding.hip.h"
@@ -61,7 +61,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor> launch_pr
     TORCH_CHECK(packed.is_contiguous(), "packed must be contiguous");
     TORCH_CHECK(batch_ids.is_contiguous(), "batch_ids must be contiguous");
 
-    c10::hip::HIPGuard device_guard(packed.device());
+    c10::hip::HIPGuardMasqueradingAsCUDA device_guard(packed.device());
 
     at::Tensor T_init_used      = at::empty(packed.sizes(), packed.options().dtype(at::kFloat));
     at::Tensor stored_K         = at::empty_like(batch_ids);
@@ -90,7 +90,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor> launch_pr
         chain_saturated.data_ptr<bool>(),
         use_stored_state.data_ptr<bool>(),
         n);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 
     return std::make_tuple(T_init_used, stored_K, stored_sat, chain_saturated, use_stored_state);
 }

@@ -21,7 +21,7 @@
 #include "lidar_torch.h"
 
 #include <ATen/hip/HIPContext.h>
-#include <c10/hip/HIPGuard.h>
+#include <ATen/hip/impl/HIPGuardImplMasqueradingAsCUDA.h>
 
 #include <cmath>
 #include <utility>
@@ -225,7 +225,7 @@ void check_lidar_projection_for_device(
 at::Tensor sensor_rays_to_sensor_angles(const at::Tensor &sensor_rays)
 {
     check_float_matrix(sensor_rays, 3, "sensor_rays");
-    auto guard         = c10::hip::HIPGuard(sensor_rays.device());
+    auto guard         = c10::hip::HIPGuardMasqueradingAsCUDA(sensor_rays.device());
     auto sensor_angles = at::empty({sensor_rays.size(0), 2}, sensor_rays.options());
     AT_DISPATCH_FLOATING_TYPES(
         sensor_rays.scalar_type(),
@@ -252,7 +252,7 @@ at::Tensor sensor_rays_to_sensor_angles_backward(const at::Tensor &sensor_rays, 
         grad_sensor_angles.scalar_type() == sensor_rays.scalar_type(), "grad_sensor_angles dtype must match sensor_rays"
     );
     check_same_device(grad_sensor_angles, sensor_rays, "grad_sensor_angles", "sensor_rays");
-    auto guard            = c10::hip::HIPGuard(sensor_rays.device());
+    auto guard            = c10::hip::HIPGuardMasqueradingAsCUDA(sensor_rays.device());
     auto grad_sensor_rays = at::empty_like(sensor_rays);
     AT_DISPATCH_FLOATING_TYPES(
         sensor_rays.scalar_type(),
@@ -278,7 +278,7 @@ at::Tensor sensor_rays_to_sensor_angles_backward(const at::Tensor &sensor_rays, 
 at::Tensor sensor_angles_to_sensor_rays(const at::Tensor &sensor_angles)
 {
     check_float_matrix(sensor_angles, 2, "sensor_angles");
-    auto guard       = c10::hip::HIPGuard(sensor_angles.device());
+    auto guard       = c10::hip::HIPGuardMasqueradingAsCUDA(sensor_angles.device());
     auto sensor_rays = at::empty({sensor_angles.size(0), 3}, sensor_angles.options());
     AT_DISPATCH_FLOATING_TYPES(
         sensor_angles.scalar_type(),
@@ -305,7 +305,7 @@ at::Tensor sensor_angles_to_sensor_rays_backward(const at::Tensor &sensor_angles
         grad_sensor_rays.scalar_type() == sensor_angles.scalar_type(), "grad_sensor_rays dtype must match sensor_angles"
     );
     check_same_device(grad_sensor_rays, sensor_angles, "grad_sensor_rays", "sensor_angles");
-    auto guard              = c10::hip::HIPGuard(sensor_angles.device());
+    auto guard              = c10::hip::HIPGuardMasqueradingAsCUDA(sensor_angles.device());
     auto grad_sensor_angles = at::empty_like(sensor_angles);
     AT_DISPATCH_FLOATING_TYPES(
         sensor_angles.scalar_type(),
@@ -363,7 +363,7 @@ std::tuple<at::Tensor, at::Tensor> elements_to_sensor_angles(
     }
     check_lidar_projection_for_device(projection, elements.device());
     check_same_device(row_elevations_rad, elements, "row_elevations_rad", "elements");
-    auto guard = c10::hip::HIPGuard(elements.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(elements.device());
 
     auto sensor_angles        = at::empty({elements.size(0), 2}, row_elevations_rad.options());
     auto valid_flags          = at::empty({elements.size(0)}, elements.options().dtype(at::kBool));
@@ -424,7 +424,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> elements_to_sensor_angles_backwar
     check_lidar_projection_for_device(projection, elements.device());
     check_same_device(row_elevations_rad, elements, "row_elevations_rad", "elements");
     check_same_device(grad_sensor_angles, elements, "grad_sensor_angles", "elements");
-    auto guard = c10::hip::HIPGuard(elements.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(elements.device());
 
     const int has_row_offsets    = projection->has_row_offsets ? 1 : 0;
     auto grad_row_elevations     = need_row_elevations_grad ? at::zeros({n_rows}, row_elevations_rad.options())
@@ -545,7 +545,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor> generate_spinning_lid
         elements_ptr = elements.data_ptr<int32_t>();
     }
 
-    auto guard             = c10::hip::HIPGuard(row_elevations_rad.device());
+    auto guard             = c10::hip::HIPGuardMasqueradingAsCUDA(row_elevations_rad.device());
     auto world_rays        = at::empty({count, 6}, row_elevations_rad.options());
     auto timestamps_us     = at::empty({count}, row_elevations_rad.options().dtype(at::kLong));
     auto poses_translation = at::empty({count, 3}, row_elevations_rad.options());
@@ -636,7 +636,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor> generate_
     }
     TORCH_CHECK(grad_world_rays.size(0) == count, "grad_world_rays batch must match element count");
 
-    auto guard = c10::hip::HIPGuard(row_elevations_rad.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(row_elevations_rad.device());
 
     auto grad_row_elevations       = need_row_elevations_grad ? at::zeros({n_rows}, row_elevations_rad.options())
                                                               : at::empty({0}, row_elevations_rad.options());
@@ -729,7 +729,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tensor, at::Tenso
     const int has_row_offsets = projection->has_row_offsets ? 1 : 0;
     const int spinning_dir    = static_cast<int>(projection->spinning_direction);
 
-    auto guard             = c10::hip::HIPGuard(world_points.device());
+    auto guard             = c10::hip::HIPGuardMasqueradingAsCUDA(world_points.device());
     auto sensor_angles     = at::empty({count, 2}, world_points.options());
     auto valid_flags       = at::empty({count}, world_points.options().dtype(at::kBool));
     auto timestamps_us     = at::empty({count}, world_points.options().dtype(at::kLong));
@@ -811,7 +811,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> inverse_project_spinning_lidar_ba
     TORCH_CHECK(scratch.scalar_type() == world_points.scalar_type(), "scratch dtype must match world_points");
     TORCH_CHECK(scratch.is_contiguous(), "scratch must be contiguous");
 
-    auto guard = c10::hip::HIPGuard(world_points.device());
+    auto guard = c10::hip::HIPGuardMasqueradingAsCUDA(world_points.device());
     auto grad_world_points
         = need_world_points_grad ? at::empty_like(world_points) : at::empty({0}, world_points.options());
     auto grad_control_translations = need_control_translations_grad ? at::zeros({2, 3}, world_points.options())

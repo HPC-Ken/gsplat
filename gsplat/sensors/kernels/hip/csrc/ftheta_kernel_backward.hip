@@ -1704,7 +1704,7 @@ void camera_rays_to_image_points_ftheta_no_external_backward_launch(
         grad_Ainv,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_camera_rays_ftheta_no_external_backward_launch(
@@ -1739,7 +1739,7 @@ void image_points_to_camera_rays_ftheta_no_external_backward_launch(
         grad_Ainv,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void camera_rays_to_image_points_ftheta_bivariate_windshield_backward_launch(
@@ -1781,7 +1781,7 @@ void camera_rays_to_image_points_ftheta_bivariate_windshield_backward_launch(
         grad_Ainv,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_camera_rays_ftheta_bivariate_windshield_backward_launch(
@@ -1823,7 +1823,7 @@ void image_points_to_camera_rays_ftheta_bivariate_windshield_backward_launch(
         grad_Ainv,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void project_world_points_mean_pose_ftheta_no_external_backward_launch(
@@ -1870,7 +1870,7 @@ void project_world_points_mean_pose_ftheta_no_external_backward_launch(
         grad_Ainv,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void project_world_points_mean_pose_ftheta_bivariate_windshield_backward_launch(
@@ -1924,7 +1924,7 @@ void project_world_points_mean_pose_ftheta_bivariate_windshield_backward_launch(
         grad_Ainv,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_static_pose_ftheta_no_external_backward_launch(
@@ -1970,7 +1970,7 @@ void image_points_to_world_rays_static_pose_ftheta_no_external_backward_launch(
         grad_A,
         grad_Ainv,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_static_pose_ftheta_bivariate_windshield_backward_launch(
@@ -2020,7 +2020,7 @@ void image_points_to_world_rays_static_pose_ftheta_bivariate_windshield_backward
         grad_Ainv,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void project_world_points_shutter_pose_ftheta_no_external_backward_launch(
@@ -2078,7 +2078,7 @@ void project_world_points_shutter_pose_ftheta_no_external_backward_launch(
         grad_A,
         grad_Ainv,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void project_world_points_shutter_pose_ftheta_bivariate_windshield_backward_launch(
@@ -2140,7 +2140,7 @@ void project_world_points_shutter_pose_ftheta_bivariate_windshield_backward_laun
         grad_Ainv,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_shutter_pose_ftheta_no_external_backward_launch(
@@ -2192,7 +2192,7 @@ void image_points_to_world_rays_shutter_pose_ftheta_no_external_backward_launch(
         grad_A,
         grad_Ainv,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_shutter_pose_ftheta_bivariate_windshield_backward_launch(
@@ -2248,5 +2248,5 @@ void image_points_to_world_rays_shutter_pose_ftheta_bivariate_windshield_backwar
         grad_Ainv,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }

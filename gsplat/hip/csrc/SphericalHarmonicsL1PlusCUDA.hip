@@ -562,7 +562,7 @@ void launch_spherical_harmonics_l1_plus_fwd_kernel(
                     gaussian_ids.has_value() ? gaussian_ids.value().data_ptr<int64_t>() : nullptr,
                     colors_ptr
                 );
-                C10_HIP_KERNEL_LAUNCH_CHECK();
+                C10_HIP_CHECK(hipGetLastError());
             }
         ),
         at::kFloat,
@@ -633,7 +633,7 @@ void launch_spherical_harmonics_l1_plus_fwd_kernels(
                             nullptr,
                             colors_ptr
                         );
-                        C10_HIP_KERNEL_LAUNCH_CHECK();
+                        C10_HIP_CHECK(hipGetLastError());
                     }
                 ),
                 at::kFloat,
@@ -870,7 +870,7 @@ void launch_spherical_harmonics_l1_plus_bwd_kernel(
                                 v_means.has_value() ? v_means.value().data_ptr<float>() : nullptr,
                                 needs_v_viewdirs ? v_viewdirs.data_ptr<float>() : nullptr
                             );
-                        C10_HIP_KERNEL_LAUNCH_CHECK();
+                        C10_HIP_CHECK(hipGetLastError());
                     }
                 );
                 TORCH_CHECK(dispatched, "Unsupported SH degree: ", degrees_to_use);
@@ -1078,7 +1078,7 @@ void launch_spherical_harmonics_l1_plus_bwd_kernels(
                                         v_means.has_value() ? v_means.value().data_ptr<float>() : nullptr,
                                         v_viewmats.has_value() ? v_viewdirs.data_ptr<float>() : nullptr
                                     );
-                                C10_HIP_KERNEL_LAUNCH_CHECK();
+                                C10_HIP_CHECK(hipGetLastError());
                             }
                         );
                         TORCH_CHECK(dispatched, "Unsupported SH degree: ", degrees_to_use);

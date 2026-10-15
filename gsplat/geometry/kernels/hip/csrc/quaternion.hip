@@ -76,7 +76,7 @@ void launch_quat_multiply_fwd(const at::Tensor &q1, const at::Tensor &q2, at::Te
     const hipStream_t stream = at::hip::getCurrentHIPStream(q1.device().index());
     quat_multiply_fwd_kernel<scalar_t>
         <<<blocks, threads, 0, stream>>>(n, q1.data_ptr<scalar_t>(), q2.data_ptr<scalar_t>(), out.data_ptr<scalar_t>());
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for batched Hamilton products.
@@ -103,7 +103,7 @@ void launch_quat_multiply_bwd(
         grad_q1.data_ptr<scalar_t>(),
         grad_q2.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 } // namespace
 
@@ -185,7 +185,7 @@ void launch_quat_rotate_vector_fwd(const at::Tensor &quat, const at::Tensor &vec
     quat_rotate_vector_fwd_kernel<scalar_t><<<blocks, threads, 0, stream>>>(
         n, quat.data_ptr<scalar_t>(), vec.data_ptr<scalar_t>(), out.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for quaternion-vector rotation.
@@ -216,7 +216,7 @@ void launch_quat_rotate_vector_bwd(
         grad_quat.data_ptr<scalar_t>(),
         grad_vec.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Public CUDA entrypoint for quaternion-vector rotation.
@@ -294,7 +294,7 @@ void launch_quat_to_matrix_fwd(const at::Tensor &quat, at::Tensor &out_flat)
     const hipStream_t stream = at::hip::getCurrentHIPStream(quat.device().index());
     quat_to_matrix_fwd_kernel<scalar_t>
         <<<blocks, threads, 0, stream>>>(n, quat.data_ptr<scalar_t>(), out_flat.data_ptr<scalar_t>());
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for quaternion -> matrix conversion.
@@ -314,7 +314,7 @@ void launch_quat_to_matrix_bwd(const at::Tensor &quat, const at::Tensor &grad_fl
     quat_to_matrix_bwd_kernel<scalar_t><<<blocks, threads, 0, stream>>>(
         n, quat.data_ptr<scalar_t>(), grad_flat.data_ptr<scalar_t>(), grad_quat.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Public CUDA entrypoint for quaternion -> row-major matrix conversion.
@@ -388,7 +388,7 @@ void launch_quat_normalize_safe_fwd(const at::Tensor &quat, at::Tensor &out)
     const hipStream_t stream = at::hip::getCurrentHIPStream(quat.device().index());
     quat_normalize_safe_fwd_kernel<scalar_t>
         <<<blocks, threads, 0, stream>>>(n, quat.data_ptr<scalar_t>(), out.data_ptr<scalar_t>());
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for safe quaternion normalization.
@@ -408,7 +408,7 @@ void launch_quat_normalize_safe_bwd(const at::Tensor &quat, const at::Tensor &gr
     quat_normalize_safe_bwd_kernel<scalar_t><<<blocks, threads, 0, stream>>>(
         n, quat.data_ptr<scalar_t>(), grad_out.data_ptr<scalar_t>(), grad_quat.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Public CUDA entrypoint for safe quaternion normalization.
@@ -479,7 +479,7 @@ void launch_quat_conjugate_fwd(const at::Tensor &quat, at::Tensor &out)
     const hipStream_t stream = at::hip::getCurrentHIPStream(quat.device().index());
     quat_conjugate_fwd_kernel<scalar_t>
         <<<blocks, threads, 0, stream>>>(n, quat.data_ptr<scalar_t>(), out.data_ptr<scalar_t>());
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for quaternion conjugation.
@@ -498,7 +498,7 @@ void launch_quat_conjugate_bwd(const at::Tensor &grad_out, at::Tensor &grad_quat
     const hipStream_t stream = at::hip::getCurrentHIPStream(grad_quat.device().index());
     quat_conjugate_bwd_kernel<scalar_t>
         <<<blocks, threads, 0, stream>>>(n, grad_out.data_ptr<scalar_t>(), grad_quat.data_ptr<scalar_t>());
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Public CUDA entrypoint for quaternion conjugation.
@@ -578,7 +578,7 @@ void launch_quat_from_axis_angle_fwd(const at::Tensor &axis, const at::Tensor &a
     quat_from_axis_angle_fwd_kernel<scalar_t><<<blocks, threads, 0, stream>>>(
         n, axis.data_ptr<scalar_t>(), angle.data_ptr<scalar_t>(), quat.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for axis-angle -> quaternion conversion.
@@ -609,7 +609,7 @@ void launch_quat_from_axis_angle_bwd(
         grad_axis.data_ptr<scalar_t>(),
         grad_angle.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Public CUDA entrypoint for axis-angle -> quaternion conversion.
@@ -699,7 +699,7 @@ void launch_quat_lerp_fwd(const at::Tensor &q1, const at::Tensor &q2, double t, 
     quat_lerp_fwd_kernel<scalar_t><<<blocks, threads, 0, stream>>>(
         n, t_s, q1.data_ptr<scalar_t>(), q2.data_ptr<scalar_t>(), out.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for normalized quaternion LERP.
@@ -735,7 +735,7 @@ void launch_quat_lerp_bwd(
         grad_q1.data_ptr<scalar_t>(),
         grad_q2.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Public CUDA entrypoint for normalized quaternion LERP.
@@ -825,7 +825,7 @@ void launch_quat_slerp_batched_fwd(const at::Tensor &q1, const at::Tensor &q2, c
     quat_slerp_batched_fwd_kernel<scalar_t><<<blocks, threads, 0, stream>>>(
         n, q1.data_ptr<scalar_t>(), q2.data_ptr<scalar_t>(), t.data_ptr<scalar_t>(), out.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for batched SLERP.
@@ -862,7 +862,7 @@ void launch_quat_slerp_batched_bwd(
         grad_q2.data_ptr<scalar_t>(),
         grad_t.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Public CUDA entrypoint for batched SLERP.
@@ -951,7 +951,7 @@ void launch_quat_angular_distance_fwd(const at::Tensor &q1, const at::Tensor &q2
     const hipStream_t stream = at::hip::getCurrentHIPStream(q1.device().index());
     quat_angular_distance_fwd_kernel<scalar_t>
         <<<blocks, threads, 0, stream>>>(n, q1.data_ptr<scalar_t>(), q2.data_ptr<scalar_t>(), out.data_ptr<scalar_t>());
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for angular distance evaluation.
@@ -978,7 +978,7 @@ void launch_quat_angular_distance_bwd(
         grad_q1.data_ptr<scalar_t>(),
         grad_q2.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Public CUDA entrypoint for quaternion angular distance.
@@ -1070,7 +1070,7 @@ void launch_quat_manifold_interp_fwd(const at::Tensor &q1, const at::Tensor &q2,
     quat_manifold_interp_fwd_kernel<scalar_t><<<blocks, threads, 0, stream>>>(
         n, t.data_ptr<scalar_t>(), q1.data_ptr<scalar_t>(), q2.data_ptr<scalar_t>(), out.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for manifold quaternion interpolation.
@@ -1105,7 +1105,7 @@ void launch_quat_manifold_interp_bwd(
         grad_q2.data_ptr<scalar_t>(),
         grad_t.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 } // namespace
 

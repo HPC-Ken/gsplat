@@ -1130,7 +1130,7 @@ void generate_image_points_launch(int64_t width, int64_t height, float *image_po
         return;
     }
     generate_image_points_kernel<<<grid_for_count(count), kThreads, 0, stream>>>(width, height, image_points);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 2; camera_rays: [N,3] f32, image_points: [N,2] f32, scratch: [N,6] f32 or nullptr.
@@ -1151,7 +1151,7 @@ void camera_rays_to_image_points_forward_launch(
     camera_rays_to_image_points_forward_kernel<<<grid_for_count(count), kThreads, 0, stream>>>(
         count, projection, camera_rays, image_points, valid_flags, scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 3; image_points: [N,2] f32, camera_rays: [N,3] f32, scratch: [N,5] f32 or nullptr.
@@ -1171,7 +1171,7 @@ void image_points_to_camera_rays_forward_launch(
     image_points_to_camera_rays_forward_kernel<<<grid_for_count(count), kThreads, 0, stream>>>(
         count, projection, image_points, camera_rays, scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 4; world_points: [N,3] f32, image_points: [N,2] f32, scratch: [N,9] f32 or nullptr.
@@ -1213,7 +1213,7 @@ void project_world_points_mean_pose_forward_launch(
         pose_rotations,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 5; world_points: [N,3] f32, image_points: [N,2] f32, scratch: [N,10] f32 or nullptr.
@@ -1267,7 +1267,7 @@ void project_world_points_shutter_pose_forward_launch(
         pose_rotations,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 7; image_points: [N,2] f32, world_rays: [N,6] f32, scratch: [N,9] f32 or nullptr.
@@ -1311,7 +1311,7 @@ void image_points_to_world_rays_shutter_pose_forward_launch(
         pose_rotations,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 6; image_points: [N,2] f32, world_rays: [N,6] f32, scratch: [N,5] f32 or nullptr.
@@ -1347,7 +1347,7 @@ void image_points_to_world_rays_static_pose_forward_launch(
         pose_rotations,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 8; camera_rays: [N,3] f32, image_points: [N,2] f32, scratch: [N,10] f32 or nullptr.
@@ -1372,7 +1372,7 @@ void camera_rays_to_image_points_opencv_pinhole_bivariate_windshield_forward_lau
         0,
         stream
     >>>(count, projection, distortion, camera_rays, image_points, valid_flags, scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 9; image_points: [N,2] f32, camera_rays: [N,3] f32, scratch: [N,9] f32 or nullptr.
@@ -1396,7 +1396,7 @@ void image_points_to_camera_rays_opencv_pinhole_bivariate_windshield_forward_lau
         0,
         stream
     >>>(count, projection, distortion, image_points, camera_rays, scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 10; world_points: [N,3] f32, image_points: [N,2] f32, scratch: [N,9] f32 or nullptr.
@@ -1443,7 +1443,7 @@ void project_world_points_mean_pose_opencv_pinhole_bivariate_windshield_forward_
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 11; world_points: [N,3] f32, image_points: [N,2] f32, scratch: [N,10] f32 or nullptr.
@@ -1502,7 +1502,7 @@ void project_world_points_shutter_pose_opencv_pinhole_bivariate_windshield_forwa
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 12; image_points: [N,2] f32, world_rays: [N,6] f32, scratch: [N,9] f32 or nullptr.
@@ -1543,7 +1543,7 @@ void image_points_to_world_rays_static_pose_opencv_pinhole_bivariate_windshield_
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches Kernel 13; image_points: [N,2] f32 or nullptr, world_rays: [N,6] f32, scratch: [N,12] f32 or nullptr.
@@ -1592,5 +1592,5 @@ void image_points_to_world_rays_shutter_pose_opencv_pinhole_bivariate_windshield
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }

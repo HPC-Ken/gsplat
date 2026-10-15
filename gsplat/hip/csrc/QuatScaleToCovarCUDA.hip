@@ -156,7 +156,7 @@ void launch_quat_scale_to_covar_preci_fwd_kernel(
                 covars.has_value() ? covars.value().data_ptr<scalar_t>() : nullptr,
                 precis.has_value() ? precis.value().data_ptr<scalar_t>() : nullptr
             );
-            C10_HIP_KERNEL_LAUNCH_CHECK();
+            C10_HIP_CHECK(hipGetLastError());
         }
     );
 }
@@ -198,7 +198,7 @@ void launch_quat_scale_to_covar_preci_fwd_kernels(
                         covars.has_value() ? covars.value().data_ptr<scalar_t>() : nullptr,
                         precis.has_value() ? precis.value().data_ptr<scalar_t>() : nullptr
                     );
-                    C10_HIP_KERNEL_LAUNCH_CHECK();
+                    C10_HIP_CHECK(hipGetLastError());
                 }
             );
         }
@@ -355,7 +355,7 @@ void launch_quat_scale_to_covar_preci_bwd_kernel(
                 v_quats.data_ptr<scalar_t>(),
                 v_scales.data_ptr<scalar_t>()
             );
-            C10_HIP_KERNEL_LAUNCH_CHECK();
+            C10_HIP_CHECK(hipGetLastError());
         }
     );
 }
@@ -406,7 +406,7 @@ void launch_quat_scale_to_covar_preci_bwd_kernels(
                         v_quats.data_ptr<scalar_t>(),
                         v_scales.data_ptr<scalar_t>()
                     );
-                    C10_HIP_KERNEL_LAUNCH_CHECK();
+                    C10_HIP_CHECK(hipGetLastError());
                 }
             );
         }

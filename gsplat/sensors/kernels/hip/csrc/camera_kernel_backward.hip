@@ -1649,7 +1649,7 @@ void camera_rays_to_image_points_backward_launch(
         grad_thin_prism_coeffs,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches K2 backward kernel.
@@ -1685,7 +1685,7 @@ void image_points_to_camera_rays_backward_launch(
         grad_thin_prism_coeffs,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches K3 backward kernel.
@@ -1733,7 +1733,7 @@ void project_world_points_mean_pose_backward_launch(
         grad_thin_prism_coeffs,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches K4 backward kernel.
@@ -1789,7 +1789,7 @@ void project_world_points_shutter_pose_backward_launch(
         grad_thin_prism_coeffs,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches K5 backward kernel.
@@ -1833,7 +1833,7 @@ void image_points_to_world_rays_static_pose_backward_launch(
         grad_thin_prism_coeffs,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches K6 backward kernel.
@@ -1883,7 +1883,7 @@ void image_points_to_world_rays_shutter_pose_backward_launch(
         grad_thin_prism_coeffs,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches K7 backward kernel.
@@ -1926,7 +1926,7 @@ void camera_rays_to_image_points_opencv_pinhole_bivariate_windshield_backward_la
         grad_thin_prism_coeffs,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches K8 backward kernel.
@@ -1969,7 +1969,7 @@ void image_points_to_camera_rays_opencv_pinhole_bivariate_windshield_backward_la
         grad_thin_prism_coeffs,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches K9 backward kernel.
@@ -2024,7 +2024,7 @@ void project_world_points_mean_pose_opencv_pinhole_bivariate_windshield_backward
         grad_thin_prism_coeffs,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches K10 backward kernel.
@@ -2087,7 +2087,7 @@ void project_world_points_shutter_pose_opencv_pinhole_bivariate_windshield_backw
         grad_thin_prism_coeffs,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches K11 backward kernel.
@@ -2138,7 +2138,7 @@ void image_points_to_world_rays_static_pose_opencv_pinhole_bivariate_windshield_
         grad_thin_prism_coeffs,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launches K12 backward kernel.
@@ -2195,5 +2195,5 @@ void image_points_to_world_rays_shutter_pose_opencv_pinhole_bivariate_windshield
         grad_thin_prism_coeffs,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }

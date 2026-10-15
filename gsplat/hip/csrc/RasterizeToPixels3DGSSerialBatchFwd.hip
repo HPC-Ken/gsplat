@@ -512,7 +512,7 @@ void launch_rasterize_to_pixels_3dgs_fwd_kernels(
                             alphas.data_ptr<float>(),
                             last_ids.data_ptr<int32_t>()
                         );
-                    C10_HIP_KERNEL_LAUNCH_CHECK();
+                    C10_HIP_CHECK(hipGetLastError());
                 }
             }
         };
