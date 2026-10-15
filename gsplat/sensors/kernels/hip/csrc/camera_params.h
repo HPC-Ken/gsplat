@@ -28,8 +28,8 @@
 
 #include <cstdint>
 
-struct CUstream_st;
-using hipStream_t = CUstream_st *;
+struct ihipStream_t;
+using hipStream_t = ihipStream_t *;
 
 // Hard upper bound on the rolling-shutter iterative solve loop used by
 // project_world_points_shutter_pose (forward and backward).  check_max_iterations
