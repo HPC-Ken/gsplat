@@ -1,4 +1,4 @@
-﻿/*
+/*
  * SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -1572,7 +1572,7 @@ void camera_rays_to_image_points_opencv_fisheye_no_external_backward_launch(
         grad_focal_length,
         grad_forward_poly,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_camera_rays_opencv_fisheye_no_external_backward_launch(
@@ -1606,7 +1606,7 @@ void image_points_to_camera_rays_opencv_fisheye_no_external_backward_launch(
         grad_focal_length,
         grad_forward_poly,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void project_world_points_mean_pose_opencv_fisheye_no_external_backward_launch(
@@ -1652,7 +1652,7 @@ void project_world_points_mean_pose_opencv_fisheye_no_external_backward_launch(
         grad_focal_length,
         grad_forward_poly,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_static_pose_opencv_fisheye_no_external_backward_launch(
@@ -1694,7 +1694,7 @@ void image_points_to_world_rays_static_pose_opencv_fisheye_no_external_backward_
         grad_focal_length,
         grad_forward_poly,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // =============================================================================
@@ -1736,7 +1736,7 @@ void camera_rays_to_image_points_opencv_fisheye_bivariate_windshield_backward_la
         grad_forward_poly,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_camera_rays_opencv_fisheye_bivariate_windshield_backward_launch(
@@ -1774,7 +1774,7 @@ void image_points_to_camera_rays_opencv_fisheye_bivariate_windshield_backward_la
         grad_forward_poly,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void project_world_points_mean_pose_opencv_fisheye_bivariate_windshield_backward_launch(
@@ -1824,7 +1824,7 @@ void project_world_points_mean_pose_opencv_fisheye_bivariate_windshield_backward
         grad_forward_poly,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_static_pose_opencv_fisheye_bivariate_windshield_backward_launch(
@@ -1870,7 +1870,7 @@ void image_points_to_world_rays_static_pose_opencv_fisheye_bivariate_windshield_
         grad_forward_poly,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // =============================================================================
@@ -1918,7 +1918,7 @@ void project_world_points_shutter_pose_opencv_fisheye_no_external_backward_launc
         grad_focal_length,
         grad_forward_poly,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void project_world_points_shutter_pose_opencv_fisheye_bivariate_windshield_backward_launch(
@@ -1966,7 +1966,7 @@ void project_world_points_shutter_pose_opencv_fisheye_bivariate_windshield_backw
         grad_forward_poly,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_shutter_pose_opencv_fisheye_no_external_backward_launch(
@@ -2012,7 +2012,7 @@ void image_points_to_world_rays_shutter_pose_opencv_fisheye_no_external_backward
         grad_focal_length,
         grad_forward_poly,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_shutter_pose_opencv_fisheye_bivariate_windshield_backward_launch(
@@ -2062,5 +2062,5 @@ void image_points_to_world_rays_shutter_pose_opencv_fisheye_bivariate_windshield
         grad_forward_poly,
         grad_distortion_coeffs,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }

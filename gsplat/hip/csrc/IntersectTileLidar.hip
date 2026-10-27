@@ -21,7 +21,7 @@
 #include <hip/hip_cooperative_groups.h>
 
 // for CUB_WRAPPER
-#include <c10/hip/HIPCachingAllocator.h>
+#include <ATen/hip/impl/HIPCachingAllocatorMasqueradingAsCUDA.h>
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
 

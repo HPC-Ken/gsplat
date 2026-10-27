@@ -26,7 +26,7 @@
 #include <vector>
 
 // for CUB_WRAPPER
-#include <c10/hip/HIPCachingAllocator.h>
+#include <ATen/hip/impl/HIPCachingAllocatorMasqueradingAsCUDA.h>
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
 
@@ -564,7 +564,7 @@ void launch_intersect_tile_kernel(
                 isect_ids.has_value() ? isect_ids.value().data_ptr<int64_t>() : nullptr,
                 flatten_ids.has_value() ? flatten_ids.value().data_ptr<int32_t>() : nullptr
             );
-            C10_HIP_KERNEL_LAUNCH_CHECK();
+            C10_HIP_CHECK(hipGetLastError());
         }
     );
 }
@@ -660,7 +660,7 @@ void launch_intersect_tile_kernels(
                         isect_ids.has_value() ? isect_ids.value().data_ptr<int64_t>() : nullptr,
                         flatten_ids.has_value() ? flatten_ids.value().data_ptr<int32_t>() : nullptr
                     );
-                    C10_HIP_KERNEL_LAUNCH_CHECK();
+                    C10_HIP_CHECK(hipGetLastError());
                 }
             );
         }
@@ -790,7 +790,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> intersect_tile_kernels_privateuse
                     nullptr,
                     nullptr
                 );
-                C10_HIP_KERNEL_LAUNCH_CHECK();
+                C10_HIP_CHECK(hipGetLastError());
             }
         );
 
@@ -801,7 +801,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> intersect_tile_kernels_privateuse
         add_counts_kernel<<<blocks, threads, 0, stream>>>(
             n_elements, device_counts[device_id], tiles_per_gauss.data_ptr<int32_t>()
         );
-        C10_HIP_KERNEL_LAUNCH_CHECK();
+        C10_HIP_CHECK(hipGetLastError());
 
         C10_HIP_CHECK(hipMemcpyAsync(
             &device_totals[device_id],
@@ -889,7 +889,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> intersect_tile_kernels_privateuse
                     isect_ids.data_ptr<int64_t>() + isect_offset,
                     flatten_ids.data_ptr<int32_t>() + isect_offset
                 );
-                C10_HIP_KERNEL_LAUNCH_CHECK();
+                C10_HIP_CHECK(hipGetLastError());
             }
         );
 
@@ -1023,7 +1023,7 @@ void launch_intersect_offset_kernel(
         tile_n_bits,
         offsets.data_ptr<int32_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void launch_intersect_offset_kernels(
@@ -1068,7 +1068,7 @@ void launch_intersect_offset_kernels(
                 tile_n_bits,
                 offsets.data_ptr<int32_t>()
             );
-            C10_HIP_KERNEL_LAUNCH_CHECK();
+            C10_HIP_CHECK(hipGetLastError());
         }
     }
     merge_streams();

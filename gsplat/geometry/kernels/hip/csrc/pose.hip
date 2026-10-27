@@ -173,7 +173,7 @@ void launch_se3pose_transform_point_fwd(
         point.data_ptr<scalar_t>(),
         out.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the forward direction-only SE(3) kernel on the current CUDA stream.
@@ -193,7 +193,7 @@ void launch_se3pose_transform_direction_fwd(const at::Tensor &rotation, const at
     se3pose_transform_direction_fwd_kernel<scalar_t><<<blocks, threads, 0, stream>>>(
         n, rotation.data_ptr<scalar_t>(), direction.data_ptr<scalar_t>(), out.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch row-wise SE(3) pose composition on the current CUDA stream.
@@ -224,7 +224,7 @@ void launch_se3pose_compose_fwd(
         out_translation.data_ptr<scalar_t>(),
         out_rotation.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch VJP for row-wise SE(3) pose composition on the current CUDA stream.
@@ -263,7 +263,7 @@ void launch_se3pose_compose_bwd(
         grad_child_translation.data_ptr<scalar_t>(),
         grad_child_rotation.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the inverse SE(3) point transform kernel on the current CUDA stream.
@@ -289,7 +289,7 @@ void launch_se3pose_inverse_transform_point_fwd(
         point.data_ptr<scalar_t>(),
         out.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the inverse direction-only SE(3) kernel on the current CUDA stream.
@@ -311,7 +311,7 @@ void launch_se3pose_inverse_transform_direction_fwd(
     se3pose_inverse_transform_direction_fwd_kernel<scalar_t><<<blocks, threads, 0, stream>>>(
         n, rotation.data_ptr<scalar_t>(), direction.data_ptr<scalar_t>(), out.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 } // namespace
 
@@ -460,7 +460,7 @@ void launch_se3pose_to_matrix_pack(const at::Tensor &translation, const at::Tens
     se3pose_to_matrix_pack_kernel<scalar_t><<<blocks, threads, 0, stream>>>(
         n, translation.data_ptr<scalar_t>(), R9.data_ptr<scalar_t>(), out_flat.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Public CUDA entrypoint for SE(3) -> row-major 4x4 matrix packing.
@@ -516,7 +516,7 @@ void launch_se3pose_to_inverse_matrix_fwd(
         out_flat.data_ptr<scalar_t>(),
         wxyz_format ? 1 : 0
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Public CUDA entrypoint for inverse SE(3) matrix construction.
@@ -582,7 +582,7 @@ void launch_se3pose_from_matrix_fwd(const at::Tensor &matrix, at::Tensor &transl
     se3pose_from_matrix_fwd_kernel<scalar_t><<<blocks, threads, 0, stream>>>(
         n, matrix.data_ptr<scalar_t>(), translation.data_ptr<scalar_t>(), rotation.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for matrix -> pose decomposition.
@@ -611,7 +611,7 @@ void launch_se3pose_from_matrix_bwd(
         grad_rotation.data_ptr<scalar_t>(),
         grad_matrix.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Public CUDA entrypoint for matrix -> pose decomposition.
@@ -903,7 +903,7 @@ void launch_trajectory_transform_point_1pose_fwd(
         result_point.data_ptr<float>(),
         result_oob.data_ptr<float>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for the single-pose trajectory point path.
@@ -946,7 +946,7 @@ void launch_trajectory_transform_point_1pose_bwd(
         grad_point.data_ptr<float>(),
         grad_query_time.data_ptr<float>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Grid-stride float: one thread per pose row; shared frame quat (xyzw), translation ft, scale; in/out (N,7).
@@ -999,7 +999,7 @@ void launch_frame_transform_poses_tquat_fwd(
     frame_transform_poses_tquat_fwd_kernel<<<blocks, threads, 0, stream>>>(
         n, frx, fry, frz, frw, ftx, fty, ftz, scale, input_poses.data_ptr<float>(), output_poses.data_ptr<float>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch 2-keyframe trajectory point interpolation on the current CUDA stream.
@@ -1045,7 +1045,7 @@ void launch_trajectory_transform_point_2poses_fwd(
         result_point.data_ptr<float>(),
         result_oob.data_ptr<float>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for the 2-keyframe trajectory point path.
@@ -1105,7 +1105,7 @@ void launch_trajectory_transform_point_2poses_bwd(
         grad_point.data_ptr<float>(),
         grad_query_time.data_ptr<float>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch 2-keyframe trajectory quaternion interpolation on the current CUDA stream.
@@ -1149,7 +1149,7 @@ void launch_trajectory_get_rotation_2poses_fwd(
         result_quat.data_ptr<float>(),
         result_oob.data_ptr<float>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // Launch the VJP for 2-keyframe trajectory quaternion interpolation.
@@ -1197,7 +1197,7 @@ void launch_trajectory_get_rotation_2poses_bwd(
         grad_time1.data_ptr<float>(),
         grad_query_time.data_ptr<float>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 } // namespace gsplat_geometry
 
@@ -1451,7 +1451,7 @@ void launch_se3_interpolate_tracks_fwd(
         out_translations.data_ptr<scalar_t>(),
         out_rotations.data_ptr<scalar_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 template<typename scalar_t, typename time_t>
@@ -1496,7 +1496,7 @@ void launch_se3_interpolate_tracks_bwd(
         grad_pose_times.data_ptr<time_t>(),
         grad_query_times.data_ptr<time_t>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 } // namespace gsplat_geometry::packed_track_cuda
 

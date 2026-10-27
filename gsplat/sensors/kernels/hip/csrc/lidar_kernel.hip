@@ -524,7 +524,7 @@ void sensor_rays_to_sensor_angles_launch(int64_t count, const T *sensor_rays, T 
     }
     sensor_rays_to_sensor_angles_kernel<T>
         <<<grid_for_count(count), kLidarThreads, 0, stream>>>(count, sensor_rays, sensor_angles);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 template<typename T>
@@ -536,7 +536,7 @@ void sensor_angles_to_sensor_rays_launch(int64_t count, const T *sensor_angles, 
     }
     sensor_angles_to_sensor_rays_kernel<T>
         <<<grid_for_count(count), kLidarThreads, 0, stream>>>(count, sensor_angles, sensor_rays);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 template<typename T>
@@ -570,7 +570,7 @@ void elements_to_sensor_angles_launch(
         sensor_angles,
         valid_flags
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 template void sensor_rays_to_sensor_angles_launch<float>(int64_t, const float *, float *, hipStream_t);
@@ -649,7 +649,7 @@ void generate_spinning_lidar_rays_launch(
         poses_translation,
         poses_rotation
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 template void generate_spinning_lidar_rays_launch<float>(
@@ -758,7 +758,7 @@ void inverse_project_spinning_lidar_launch(
         poses_rotation,
         scratch
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 template void inverse_project_spinning_lidar_launch<float>(

@@ -136,7 +136,7 @@ pulling Torch templates through the compiler.
 | `*_torch.h` / `.cpp` | host C++ | `*_params.h`, ATen / `torch::CustomClassHolder` | Host structs, validators, Torch entry functions. |
 | `ext.cpp` | host C++ | all `*_torch.h` | `TORCH_LIBRARY` + `PYBIND11_MODULE`. |
 
-The bridge seam is exactly two declarations: an opaque `CUstream_st`
+The bridge seam is exactly two declarations: an opaque `ihipStream_t`
 forward-declaration aliased as `hipStream_t` in `camera_params.h`, plus the
 POD `KernelParameters` structs. Every other type leaks only on one side or
 the other.

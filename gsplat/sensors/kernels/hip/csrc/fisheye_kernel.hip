@@ -1031,7 +1031,7 @@ void camera_rays_to_image_points_opencv_fisheye_no_external_forward_launch(
         0,
         stream
     >>>(count, projection, camera_rays, image_points, valid_flags, scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_camera_rays_opencv_fisheye_no_external_forward_launch(
@@ -1053,7 +1053,7 @@ void image_points_to_camera_rays_opencv_fisheye_no_external_forward_launch(
         0,
         stream
     >>>(count, projection, image_points, camera_rays, scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void project_world_points_mean_pose_opencv_fisheye_no_external_forward_launch(
@@ -1097,7 +1097,7 @@ void project_world_points_mean_pose_opencv_fisheye_no_external_forward_launch(
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_static_pose_opencv_fisheye_no_external_forward_launch(
@@ -1135,7 +1135,7 @@ void image_points_to_world_rays_static_pose_opencv_fisheye_no_external_forward_l
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // =============================================================================
@@ -1163,7 +1163,7 @@ void camera_rays_to_image_points_opencv_fisheye_bivariate_windshield_forward_lau
         0,
         stream
     >>>(count, projection, distortion, camera_rays, image_points, valid_flags, scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_camera_rays_opencv_fisheye_bivariate_windshield_forward_launch(
@@ -1186,7 +1186,7 @@ void image_points_to_camera_rays_opencv_fisheye_bivariate_windshield_forward_lau
         0,
         stream
     >>>(count, projection, distortion, image_points, camera_rays, scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void project_world_points_mean_pose_opencv_fisheye_bivariate_windshield_forward_launch(
@@ -1232,7 +1232,7 @@ void project_world_points_mean_pose_opencv_fisheye_bivariate_windshield_forward_
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_static_pose_opencv_fisheye_bivariate_windshield_forward_launch(
@@ -1272,7 +1272,7 @@ void image_points_to_world_rays_static_pose_opencv_fisheye_bivariate_windshield_
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 // =============================================================================
@@ -1332,7 +1332,7 @@ void project_world_points_shutter_pose_opencv_fisheye_no_external_forward_launch
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void project_world_points_shutter_pose_opencv_fisheye_bivariate_windshield_forward_launch(
@@ -1390,7 +1390,7 @@ void project_world_points_shutter_pose_opencv_fisheye_bivariate_windshield_forwa
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_shutter_pose_opencv_fisheye_no_external_forward_launch(
@@ -1436,7 +1436,7 @@ void image_points_to_world_rays_shutter_pose_opencv_fisheye_no_external_forward_
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void image_points_to_world_rays_shutter_pose_opencv_fisheye_bivariate_windshield_forward_launch(
@@ -1484,5 +1484,5 @@ void image_points_to_world_rays_shutter_pose_opencv_fisheye_bivariate_windshield
         pose_translations,
         pose_rotations,
         scratch);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }

@@ -19,7 +19,7 @@
 
 #include <ATen/core/Tensor.h>
 #include <ATen/hip/HIPContext.h>
-#include <c10/hip/HIPCachingAllocator.h>
+#include <ATen/hip/impl/HIPCachingAllocatorMasqueradingAsCUDA.h>
 #include <c10/hip/HIPStream.h>
 
 #include "SegmentedSort.h"
@@ -49,7 +49,7 @@ at::Tensor launch_mt_segmented_sort(
     const int32_t *d_offsets = in_mt_gauss_offsets.data_ptr<int32_t>();
     hipStream_t stream      = at::hip::getCurrentHIPStream();
 
-    auto &alloc = *::c10::hip::HIPCachingAllocator::get();
+    auto &alloc = *::c10::hip::HIPCachingAllocatorMasqueradingAsCUDA::get();
 
     SegmentedSortState state;
     size_t scratch_bytes = SegmentedSortSetup(state, n_macro_tiles, (int32_t)n_macro_isects, nullptr);

@@ -28,8 +28,8 @@
 
 #include <cstdint>
 
-struct CUstream_st;
-using hipStream_t = CUstream_st *;
+struct ihipStream_t;
+using hipStream_t = ihipStream_t *;
 
 namespace gsplat_sensors
 {

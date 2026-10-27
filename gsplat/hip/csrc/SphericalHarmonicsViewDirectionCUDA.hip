@@ -277,7 +277,7 @@ namespace
         float *__restrict__ v_viewmats,
         float *__restrict__ v_viewmats_rs,
         const at::TensorOptions &partial_options,
-        const c10::hip::HIPStream stream
+        const decltype(at::hip::getCurrentHIPStream()) stream
     )
     {
         const int64_t num_viewmats   = viewmats.numel() / 16;
@@ -318,7 +318,7 @@ namespace
                 v_viewdirs.data_ptr<float>(),
                 partials.data_ptr<float>()
             );
-            C10_HIP_KERNEL_LAUNCH_CHECK();
+            C10_HIP_CHECK(hipGetLastError());
 
             reduce_unpacked_view_direction_gradients_to_viewmats<Update>
                 <<<num_viewmats, kShReductionThreads, 0, stream>>>(
@@ -332,7 +332,7 @@ namespace
                     v_viewmats,
                     v_viewmats_rs
                 );
-            C10_HIP_KERNEL_LAUNCH_CHECK();
+            C10_HIP_CHECK(hipGetLastError());
             return;
         }
 
@@ -347,7 +347,7 @@ namespace
             v_viewmats,
             v_viewmats_rs
         );
-        C10_HIP_KERNEL_LAUNCH_CHECK();
+        C10_HIP_CHECK(hipGetLastError());
     }
 } // namespace
 
@@ -371,7 +371,7 @@ at::Tensor precompute_spherical_harmonics_camera_offsets(
         viewmats_rs.has_value() ? viewmats_rs.value().data_ptr<float>() : nullptr,
         camera_offsets.data_ptr<float>()
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
     return camera_offsets;
 }
 
@@ -427,7 +427,7 @@ void launch_spherical_harmonics_view_direction_vjp_reduction(
                 v_viewdirs.data_ptr<float>(),
                 reduced_v_viewdirs.data_ptr<float>()
             );
-            C10_HIP_KERNEL_LAUNCH_CHECK();
+            C10_HIP_CHECK(hipGetLastError());
 
             const unsigned int viewmat_blocks
                 = static_cast<unsigned int>((num_viewmats + kShReductionThreads - 1) / kShReductionThreads);
@@ -440,7 +440,7 @@ void launch_spherical_harmonics_view_direction_vjp_reduction(
                 v_viewmats.has_value() ? v_viewmats.value().data_ptr<float>() : nullptr,
                 v_viewmats_rs.has_value() ? v_viewmats_rs.value().data_ptr<float>() : nullptr
             );
-            C10_HIP_KERNEL_LAUNCH_CHECK();
+            C10_HIP_CHECK(hipGetLastError());
             return;
         }
 

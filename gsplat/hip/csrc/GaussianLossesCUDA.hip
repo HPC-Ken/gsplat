@@ -194,7 +194,7 @@ void launch_gaussian_losses_fwd_kernel(
             );
         }
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 void launch_gaussian_losses_bwd_kernel(
@@ -250,7 +250,7 @@ void launch_gaussian_losses_bwd_kernel(
             );
         }
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 } // namespace gsplat
 

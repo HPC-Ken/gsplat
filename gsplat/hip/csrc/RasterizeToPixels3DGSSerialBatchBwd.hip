@@ -453,7 +453,7 @@ void launch_rasterize_to_pixels_3dgs_bwd_kernel(
                 v_colors.data_ptr<float>(),
                 v_opacities.data_ptr<float>()
             );
-        C10_HIP_KERNEL_LAUNCH_CHECK();
+        C10_HIP_CHECK(hipGetLastError());
     };
     const bool dispatched = dispatch::dispatch(SupportedChannels{channels}, std::move(launch_kernel));
     TORCH_CHECK(dispatched, "dispatch failed: no matching compile-time instantiation for runtime parameters");
@@ -577,7 +577,7 @@ void launch_rasterize_to_pixels_3dgs_bwd_kernels(
                     v_colors.data_ptr<float>(),
                     v_opacities.data_ptr<float>()
                 );
-                C10_HIP_KERNEL_LAUNCH_CHECK();
+                C10_HIP_CHECK(hipGetLastError());
             }
         }
     };

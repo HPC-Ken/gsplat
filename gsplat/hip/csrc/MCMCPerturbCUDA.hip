@@ -93,7 +93,7 @@ void launch_mcmc_perturb_positions_kernel(
         t,
         k
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 } // namespace gsplat
 

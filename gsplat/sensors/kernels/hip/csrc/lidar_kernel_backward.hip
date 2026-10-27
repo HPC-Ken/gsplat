@@ -1,4 +1,4 @@
-﻿/*
+/*
  * SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -704,7 +704,7 @@ void sensor_rays_to_sensor_angles_backward_launch(
     }
     sensor_rays_to_sensor_angles_backward_kernel<T>
         <<<grid_for_count(count), kLidarThreads, 0, stream>>>(count, sensor_rays, grad_sensor_angles, grad_sensor_rays);
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 template<typename T>
@@ -719,7 +719,7 @@ void sensor_angles_to_sensor_rays_backward_launch(
     sensor_angles_to_sensor_rays_backward_kernel<T><<<grid_for_count(count), kLidarThreads, 0, stream>>>(
         count, sensor_angles, grad_sensor_rays, grad_sensor_angles
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 template<typename T>
@@ -751,7 +751,7 @@ void elements_to_sensor_angles_backward_launch(
         grad_column_azimuths_rad,
         grad_row_azimuth_offsets_rad
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 template void sensor_rays_to_sensor_angles_backward_launch<float>(
@@ -818,7 +818,7 @@ void generate_spinning_lidar_rays_backward_launch(
         grad_control_translations,
         grad_control_rotations
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 template void generate_spinning_lidar_rays_backward_launch<float>(
@@ -893,7 +893,7 @@ void inverse_project_spinning_lidar_backward_launch(
         grad_control_translations,
         grad_control_rotations
     );
-    C10_HIP_KERNEL_LAUNCH_CHECK();
+    C10_HIP_CHECK(hipGetLastError());
 }
 
 template void inverse_project_spinning_lidar_backward_launch<float>(
